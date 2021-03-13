@@ -7,12 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface PriceRepository extends JpaRepository<Price, Integer> {
 
-    @Query("select p from Price p where p.startDate >= :date and p.endDate <= :date  and p.brand.id in :brandIds and p.product.id in :productIds")
-    Collection<Price> findAllByFilter(@Param("date") Date date, @Param("brandIds") Collection<Integer> brandIds,
-                                      @Param("productIds") Collection<Integer> productIds);
+    @Query("select p from Price p where (:date is null or p.startDate >= :date and p.endDate <= :date) " +
+            " and (:brandIds is null or p.brand.id in :brandIds) and (:productIds is null or p.product.id in :productIds)")
+    List<Price> findAllByFilter(@Param("date") Date date, @Param("brandIds") Collection<Integer> brandIds,
+                                @Param("productIds") Collection<Integer> productIds);
 
 }

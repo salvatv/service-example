@@ -33,7 +33,7 @@ public class Price {
     private Integer priority;
 
     @Column(columnDefinition = "DECIMAL(2,2) DEFAULT 0")
-    private Integer cost;
+    private Double cost;
 
     @Column(columnDefinition = "VARCHAR(250) DEFAULT NULL")
     private String curr;

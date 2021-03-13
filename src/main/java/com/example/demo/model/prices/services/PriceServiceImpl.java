@@ -1,6 +1,7 @@
 package com.example.demo.model.prices.services;
 
 import com.example.demo.model.prices.mappers.PriceMapper;
+import com.example.demo.model.prices.repositories.Price;
 import com.example.demo.model.prices.repositories.PriceRepository;
 import com.example.demo.ws.prices.dto.PriceBO;
 import com.example.demo.ws.prices.dto.PriceDTO;
@@ -8,8 +9,9 @@ import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class PriceServiceImpl implements PriceService {
@@ -59,8 +61,18 @@ public class PriceServiceImpl implements PriceService {
 
     @Override
     public Collection<PriceBO> findBy(final PriceFilterDTO filter) {
-        this.priceRepository.findAllByFilter(filter.getDate(), filter.getBrandIds(), filter.getProductIds());
+        final Set<PriceBO> result = new HashSet<>();
+        final Collection<Price> prices = this.priceRepository.findAllByFilter(filter.getDate(), filter.getBrandIds(), filter.getProductIds());
+        prices.forEach(price ->
+                result.add(PriceBO.builder()
+                        .productId(price.getProduct().getId())
+                        .brandId(price.getBrand().getId())
+                        .startDate(price.getStartDate())
+                        .endDate(price.getEndDate())
+                        .finalPrice(price.getCost())
+                        .build())
+        );
 
-        return new ArrayList<>();
+        return result;
     }
 }
