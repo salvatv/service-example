@@ -1,91 +1,52 @@
 package com.example.demo.model.prices.services;
 
-import com.example.demo.model.prices.mappers.PriceMapper;
 import com.example.demo.model.prices.repositories.Price;
-import com.example.demo.model.prices.repositories.PriceRepository;
+import com.example.demo.model.prices.repositories.PriceCustomRepository;
 import com.example.demo.ws.prices.dto.PriceBO;
 import com.example.demo.ws.prices.dto.PriceDTO;
 import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Service
 public class PriceServiceImpl implements PriceService {
 
     @Autowired
-    PriceRepository priceRepository;
-
-    @Autowired
-    PriceMapper priceMapper;
+    PriceCustomRepository priceCustomRepository;
 
     @Override
-    public Collection<PriceDTO> findAll() {
-        return this.priceMapper.asDTOs(this.priceRepository.findAll());
-    }
-
-    @Override
-    public PriceDTO findById(final Integer id) {
-        return priceMapper.asDTO(priceRepository.findById(id).orElse(null));
-    }
-
-    @Override
-    public PriceDTO save(final PriceDTO price) {
-        try {
-            return this.priceMapper.asDTO(this.priceRepository.save(this.priceMapper.asEntity(price)));
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public PriceDTO update(final Integer id, final PriceDTO price) {
-        if (this.findById(id) == null) {
-            return null;
-        }
-        return this.priceMapper.asDTO(this.priceRepository.save(this.priceMapper.asEntity(price)));
-    }
-
-    @Override
-    public PriceDTO delete(final Integer id) {
-        final PriceDTO price = this.findById(id);
-        if (price == null) {
-            return null;
-        }
-        this.priceRepository.deleteById(id);
-        return price;
-    }
-
-    @Override
-    //TODO: obtener el por cada producto el valor más alto por prioridad
     public Collection<PriceBO> findBy(final PriceFilterDTO filter) {
         final Set<PriceBO> result = new HashSet<>();
-        final Collection<Price> prices = this.priceRepository.findAllByFilter(getDateParsed(filter.getDate()), filter.getBrandIds(), filter.getProductIds());
-        prices.forEach(price ->
-                result.add(PriceBO.builder()
-                        .productId(price.getProduct().getId())
+        final Collection<Price> prices = this.priceCustomRepository.findByFilter(filter);
+
+        Map<PriceDTO, List<Price>> pricesByPriority = prices.stream()
+                .collect(groupingBy(price -> PriceDTO.builder()
                         .brandId(price.getBrand().getId())
+                        .productId(price.getProduct().getId())
                         .startDate(price.getStartDate())
                         .endDate(price.getEndDate())
-                        .finalPrice(price.getCost())
-                        .build())
+                        .cost(price.getCost())
+                        .curr(price.getCurr())
+                        .build()));
+
+        pricesByPriority.forEach((priceDTO, pricesPriority) ->
+                pricesPriority.stream()
+                        .max(Comparator.comparing(Price::getPriority)).ifPresent(priceMaxPriority -> result.add(PriceBO.builder()
+                        .productId(priceMaxPriority.getProduct().getId())
+                        .brandId(priceMaxPriority.getBrand().getId())
+                        .startDate(priceMaxPriority.getStartDate())
+                        .endDate(priceMaxPriority.getEndDate())
+                        .finalPrice(priceMaxPriority.getCost())
+                        .priority(priceMaxPriority.getPriority())
+                        .build()))
         );
 
         return result;
     }
 
-    private Date getDateParsed(final String date) {
-        try {
-            return new SimpleDateFormat("dd/MM/yyyy").parse(date);
-        } catch (ParseException dataFormatException) {
-            return new Date();
-        }
 
-    }
 }

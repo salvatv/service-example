@@ -1,10 +1,16 @@
 package com.example.demo.ws.prices.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PriceDTO {
 
     private Integer id;
@@ -19,7 +25,7 @@ public class PriceDTO {
 
     private Integer priority;
 
-    private Integer cost;
+    private Double cost;
 
     private String curr;
 

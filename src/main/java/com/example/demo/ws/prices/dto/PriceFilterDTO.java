@@ -5,9 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +15,7 @@ import java.util.Date;
 @Builder
 public class PriceFilterDTO {
 
+    @NotBlank
     private String date;
 
     private Collection<Integer> productIds = new ArrayList<>();
