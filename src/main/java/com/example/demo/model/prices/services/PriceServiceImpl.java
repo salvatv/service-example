@@ -9,7 +9,10 @@ import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,9 +63,10 @@ public class PriceServiceImpl implements PriceService {
     }
 
     @Override
+    //TODO: obtener el por cada producto el valor más alto por prioridad
     public Collection<PriceBO> findBy(final PriceFilterDTO filter) {
         final Set<PriceBO> result = new HashSet<>();
-        final Collection<Price> prices = this.priceRepository.findAllByFilter(filter.getDate(), filter.getBrandIds(), filter.getProductIds());
+        final Collection<Price> prices = this.priceRepository.findAllByFilter(getDateParsed(filter.getDate()), filter.getBrandIds(), filter.getProductIds());
         prices.forEach(price ->
                 result.add(PriceBO.builder()
                         .productId(price.getProduct().getId())
@@ -74,5 +78,14 @@ public class PriceServiceImpl implements PriceService {
         );
 
         return result;
+    }
+
+    private Date getDateParsed(final String date) {
+        try {
+            return new SimpleDateFormat("dd/MM/yyyy").parse(date);
+        } catch (ParseException dataFormatException) {
+            return new Date();
+        }
+
     }
 }

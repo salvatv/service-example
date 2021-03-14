@@ -4,6 +4,7 @@ import com.example.demo.model.prices.services.PriceService;
 import com.example.demo.ws.prices.dto.PriceBO;
 import com.example.demo.ws.prices.dto.PriceDTO;
 import com.example.demo.ws.prices.dto.PriceFilterDTO;
+import com.sun.istack.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +54,9 @@ public class PricesController {
         }
     }
 
-    @GetMapping("/filtro")
-    public ResponseEntity<Collection<PriceBO>> getPricesByFilter(@RequestParam(required = false) final Date date,
-                                                                 @RequestParam(required = false) final Collection<Integer> productIds,
-                                                                 @RequestParam(required = false) final Collection<Integer> brandIds) {
-        final PriceFilterDTO filter = PriceFilterDTO.builder().date(date).brandIds(brandIds).productIds(productIds).build();
+    @GetMapping("/filter")
+    public ResponseEntity<Collection<PriceBO>> getPricesByFilter(@NotNull final PriceFilterDTO filter) {
+      //  final PriceFilterDTO filter = PriceFilterDTO.builder().date(null).brandIds(brandIds).productIds(productIds).build();
         final Collection<PriceBO> prices = this.priceService.findBy(filter);
 
         return prices.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :

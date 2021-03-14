@@ -15,7 +15,7 @@ import java.util.Date;
 @Builder
 public class PriceFilterDTO {
 
-    private Date date;
+    private String date;
 
     private Collection<Integer> productIds = new ArrayList<>();
 
