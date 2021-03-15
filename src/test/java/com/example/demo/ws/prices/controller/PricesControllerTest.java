@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class PricesControllerTest {
 
     private MockMvc mockMvc;
@@ -52,24 +54,31 @@ public class PricesControllerTest {
 
     @Test
     public void getBrandsBadRequestTest() throws Exception {
+        // act & assert
         this.mockMvc.perform(get("/prices/filter")).andDo(print()).andExpect(status().isBadRequest());
     }
 
     @Test
     public void getBrandsNoContentTest() throws Exception {
+        // arrange
         when(priceService.findBy(priceFilterCaptor.capture())).thenReturn(new ArrayList<>());
+
+        // act & assert
         this.mockMvc.perform(get("/prices/filter?date=2020-06-15 01-00-00&productIds=&brandIds")).andDo(print())
                 .andExpect(status().isNoContent());
     }
 
     @Test
     public void getBrandsTest() throws Exception {
+        // arrange
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH-mm-ss"));
         Set<PriceBO> prices = Arrays.stream(objectMapper.readValue(new File("src/test/resources/json_prices.json"), PriceBO[].class))
                 .collect(Collectors.toSet());
 
         when(priceService.findBy(priceFilterCaptor.capture())).thenReturn(prices);
+
+        // act & assert
         this.mockMvc.perform(get("/prices/filter?date=2020-06-15 01:00:00&productIds=&brandIds")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(prices)));
