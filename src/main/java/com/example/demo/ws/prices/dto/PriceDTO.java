@@ -1,3 +1,8 @@
+/*
+ * Created by Salvador Torres Velasco
+ * 2021
+ */
+
 package com.example.demo.ws.prices.dto;
 
 import lombok.AllArgsConstructor;

@@ -1,3 +1,8 @@
+/*
+ * Created by Salvador Torres Velasco
+ * 2021
+ */
+
 package com.example.demo.model.prices.repositories;
 
 import com.example.demo.model.brands.repositories.Brand;
