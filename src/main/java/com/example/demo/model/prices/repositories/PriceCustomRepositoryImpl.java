@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
@@ -51,10 +49,10 @@ public class PriceCustomRepositoryImpl implements PriceCustomRepository {
             this.price = price;
         }
 
-        FindPriceBuilder date(final String date) {
-            if (date != null && !date.isEmpty()) {
-                this.booleanExpression = this.booleanExpression.and(this.price.startDate.before(getDateParsed(date))
-                        .and(this.price.endDate.after(getDateParsed(date))));
+        FindPriceBuilder date(final Date date) {
+            if (date != null) {
+                this.booleanExpression = this.booleanExpression.and(this.price.startDate.before(date)
+                        .and(this.price.endDate.after(date)));
             }
             return this;
         }
@@ -77,14 +75,6 @@ public class PriceCustomRepositoryImpl implements PriceCustomRepository {
             return this.booleanExpression;
         }
 
-        private Date getDateParsed(final String date) {
-            try {
-                return new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").parse(date);
-            } catch (ParseException dataFormatException) {
-                return null;
-            }
-
-        }
     }
 
 
