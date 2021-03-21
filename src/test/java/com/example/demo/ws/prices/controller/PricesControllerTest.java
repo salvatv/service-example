@@ -100,30 +100,25 @@ public class PricesControllerTest {
     @Test
     @DisplayName("Test 2")
     public void getPricesSecondTest() throws Exception {
-        // arrange
         testCase("src/test/resources/json_prices_2.json", "/prices?date=2020-06-14 16:00:00&productId=1&brandId=1");
     }
 
     @Test
     @DisplayName("Test 3")
     public void getPricesThirdTest() throws Exception {
-        // arrange
         testCase("src/test/resources/json_prices_3.json", "/prices?date=2020-06-14 21:00:00&productId=1&brandId=1");
     }
 
     @Test
     @DisplayName("Test 4")
     public void getPricesFourthTest() throws Exception {
-        // arrange
         testCase("src/test/resources/json_prices_5.json", "/prices?date=2020-06-15 10:00:00&productId=1&brandId=1");
     }
 
     @Test
     @DisplayName("Test 5")
     public void getPricesFifthTest() throws Exception {
-        // arrange
         testCase("src/test/resources/json_prices_5.json", "/prices?date=2020-06-16 21:00:00&productId=1&brandId=1");
     }
-
 
 }
