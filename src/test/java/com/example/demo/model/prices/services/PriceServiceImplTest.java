@@ -5,8 +5,8 @@
 
 package com.example.demo.model.prices.services;
 
-import com.example.demo.model.prices.repositories.Price;
 import com.example.demo.model.prices.repositories.PriceCustomRepository;
+import com.example.demo.model.prices.repositories.Prices;
 import com.example.demo.ws.prices.dto.PriceBO;
 import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import org.junit.Test;
@@ -21,6 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.jemos.podam.api.PodamFactory;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,32 +45,37 @@ public class PriceServiceImplTest {
     @DisplayName("Test findBy Success")
     public void findByTest() {
         // arrange
-        final Price mockedPrice = getMockedPrice();
-        final Collection<Price> prices = new HashSet<>(Collections.singleton(mockedPrice));
+        final Prices mockedPrice = getMockedPrice();
+        final Collection<Prices> prices = new HashSet<>(Collections.singleton(mockedPrice));
         when(this.priceCustomRepository.findByFilter(priceFilterCaptor.capture())).thenReturn(prices);
 
         // act
-        Collection<PriceBO> actual = this.priceService.findBy(priceFilterCaptor.capture());
+        Collection<PriceBO> actual = this.priceService.findByFilter(priceFilterCaptor.capture());
 
         // assert
         Assertions.assertEquals(actual, getBoFromPrices(prices));
     }
 
-    private Price getMockedPrice() {
+    private Prices getMockedPrice() {
         PodamFactory podamFactory = new PodamFactoryImpl();
-        podamFactory.manufacturePojo(Price.class);
-        return podamFactory.manufacturePojo(Price.class);
+        podamFactory.manufacturePojo(Prices.class);
+        return podamFactory.manufacturePojo(Prices.class);
     }
 
-    private Collection<PriceBO> getBoFromPrices(Collection<Price> prices) {
+    private Collection<PriceBO> getBoFromPrices(Collection<Prices> prices) {
         return prices.stream().map(p -> PriceBO.builder()
-                .productId(p.getProduct().getId())
-                .brandId(p.getBrand().getId())
-                .startDate(p.getStartDate())
-                .endDate(p.getEndDate())
-                .finalPrice(p.getCost())
+                .productId(p.getProductId())
+                .brandId(p.getBrandId())
+                .startDate(p.getStartDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime())
+                .endDate(p.getEndDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime())
+                .finalPrice(p.getPrice())
                 .priority(p.getPriority())
-                .build()).collect(Collectors.toSet());
+                .build())
+                .collect(Collectors.toSet());
 
     }
 

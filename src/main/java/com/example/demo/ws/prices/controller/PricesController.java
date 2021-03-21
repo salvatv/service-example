@@ -25,13 +25,12 @@ public class PricesController {
     @Autowired
     PriceService priceService;
 
-    @GetMapping("/filter")
+    @GetMapping
     public ResponseEntity<Collection<PriceBO>> getPricesByFilter(@Valid final PriceFilterDTO filter) {
-        final Collection<PriceBO> prices = this.priceService.findBy(filter);
+        final Collection<PriceBO> prices = this.priceService.findByFilter(filter);
 
         return prices.isEmpty() ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :
                 new ResponseEntity<>(prices, HttpStatus.OK);
     }
-
 
 }

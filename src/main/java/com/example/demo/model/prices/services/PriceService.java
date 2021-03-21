@@ -18,8 +18,8 @@ public interface PriceService {
     /**
      * Find by collection.
      *
-     * @param filter the filter
-     * @return the collection
+     * @param filter the price filter
+     * @return the prices collection
      */
-    Collection<PriceBO> findBy(PriceFilterDTO filter);
+    Collection<PriceBO> findByFilter(PriceFilterDTO filter);
 }

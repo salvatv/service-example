@@ -9,8 +9,10 @@ import com.example.demo.model.prices.services.PriceService;
 import com.example.demo.ws.prices.dto.PriceBO;
 import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -60,33 +62,67 @@ public class PricesControllerTest {
     @Test
     public void getBrandsBadRequestTest() throws Exception {
         // act & assert
-        this.mockMvc.perform(get("/prices/filter")).andDo(print()).andExpect(status().isBadRequest());
+        this.mockMvc.perform(get("/prices")).andDo(print()).andExpect(status().isBadRequest());
     }
 
     @Test
     public void getBrandsNoContentTest() throws Exception {
         // arrange
-        when(priceService.findBy(priceFilterCaptor.capture())).thenReturn(new ArrayList<>());
+        when(priceService.findByFilter(priceFilterCaptor.capture())).thenReturn(new ArrayList<>());
 
         // act & assert
-        this.mockMvc.perform(get("/prices/filter?date=2020-06-15 01-00-00&productIds=&brandIds")).andDo(print())
+        this.mockMvc.perform(get("/prices?date=2020-06-14 10:00:00&productId=9&brandId=1")).andDo(print())
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    public void getBrandsTest() throws Exception {
+    @DisplayName("Test 1")
+    public void getPricesTest() throws Exception {
+        testCase("src/test/resources/json_prices_1.json", "/prices?date=2020-06-14 10:00:00&productId=1&brandId=1");
+    }
+
+    private void testCase(String file, String url) throws Exception {
         // arrange
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH-mm-ss"));
-        Set<PriceBO> prices = Arrays.stream(objectMapper.readValue(new File("src/test/resources/json_prices.json"), PriceBO[].class))
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss"));
+        Set<PriceBO> prices = Arrays.stream(objectMapper.readValue(new File(file), PriceBO[].class))
                 .collect(Collectors.toSet());
 
-        when(priceService.findBy(priceFilterCaptor.capture())).thenReturn(prices);
+        when(priceService.findByFilter(priceFilterCaptor.capture())).thenReturn(prices);
 
         // act & assert
-        this.mockMvc.perform(get("/prices/filter?date=2020-06-15 01:00:00&productIds=&brandIds")).andDo(print())
+        this.mockMvc.perform(get(url)).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(prices)));
+    }
+
+    @Test
+    @DisplayName("Test 2")
+    public void getPricesSecondTest() throws Exception {
+        // arrange
+        testCase("src/test/resources/json_prices_2.json", "/prices?date=2020-06-14 16:00:00&productId=1&brandId=1");
+    }
+
+    @Test
+    @DisplayName("Test 3")
+    public void getPricesThirdTest() throws Exception {
+        // arrange
+        testCase("src/test/resources/json_prices_3.json", "/prices?date=2020-06-14 21:00:00&productId=1&brandId=1");
+    }
+
+    @Test
+    @DisplayName("Test 4")
+    public void getPricesFourthTest() throws Exception {
+        // arrange
+        testCase("src/test/resources/json_prices_5.json", "/prices?date=2020-06-15 10:00:00&productId=1&brandId=1");
+    }
+
+    @Test
+    @DisplayName("Test 5")
+    public void getPricesFifthTest() throws Exception {
+        // arrange
+        testCase("src/test/resources/json_prices_5.json", "/prices?date=2020-06-16 21:00:00&productId=1&brandId=1");
     }
 
 

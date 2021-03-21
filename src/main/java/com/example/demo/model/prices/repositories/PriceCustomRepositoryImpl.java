@@ -5,8 +5,6 @@
 
 package com.example.demo.model.prices.repositories;
 
-import com.example.demo.model.brands.repositories.QBrand;
-import com.example.demo.model.products.repositories.QProduct;
 import com.example.demo.ws.prices.dto.PriceFilterDTO;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -25,31 +23,29 @@ public class PriceCustomRepositoryImpl implements PriceCustomRepository {
     private EntityManager entityManager;
 
     @Override
-    public Collection<Price> findByFilter(final PriceFilterDTO filter) {
+    public Collection<Prices> findByFilter(final PriceFilterDTO filter) {
         final JPAQueryFactory queryFactory = new JPAQueryFactory(this.entityManager);
 
-        final QPrice price = new QPrice("price");
-        final QBrand brand = new QBrand("brand");
-        final QProduct product = new QProduct("product");
+        final QPrices prices = new QPrices("prices");
 
-        return queryFactory.selectFrom(price).join(price.brand, brand).join(price.product, product).where(this.generateWhere(price, filter)).fetch();
+        return queryFactory.selectFrom(prices).where(this.generateWhere(prices, filter)).fetch();
     }
 
-    private BooleanExpression generateWhere(final QPrice price, final PriceFilterDTO filter) {
+    private BooleanExpression generateWhere(final QPrices price, final PriceFilterDTO filter) {
         return new FindPriceBuilder(price)
                 .date(filter.getDate())
-                .productIds(filter.getProductIds())
-                .brandIds(filter.getBrandIds())
+                .productId(filter.getProductId())
+                .brandId(filter.getBrandId())
                 .build();
     }
 
     private class FindPriceBuilder {
 
-        private final QPrice price;
+        private final QPrices price;
 
         private BooleanExpression booleanExpression;
 
-        FindPriceBuilder(final QPrice price) {
+        FindPriceBuilder(final QPrices price) {
             this.booleanExpression = Expressions.asBoolean(true).isTrue();
             this.price = price;
         }
@@ -62,16 +58,16 @@ public class PriceCustomRepositoryImpl implements PriceCustomRepository {
             return this;
         }
 
-        FindPriceBuilder productIds(final Collection<Integer> productIds) {
-            if (!productIds.isEmpty()) {
-                this.booleanExpression = this.booleanExpression.and(this.price.product.id.in(productIds));
+        FindPriceBuilder productId(final Integer productId) {
+            if (productId != null) {
+                this.booleanExpression = this.booleanExpression.and(this.price.productId.eq(productId));
             }
             return this;
         }
 
-        FindPriceBuilder brandIds(final Collection<Integer> brandIds) {
-            if (!brandIds.isEmpty()) {
-                this.booleanExpression = this.booleanExpression.and(this.price.brand.id.in(brandIds));
+        FindPriceBuilder brandId(final Integer brandId) {
+            if (brandId != null) {
+                this.booleanExpression = this.booleanExpression.and(this.price.brandId.eq(brandId));
             }
             return this;
         }

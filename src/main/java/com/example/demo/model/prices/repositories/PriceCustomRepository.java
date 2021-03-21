@@ -20,6 +20,6 @@ public interface PriceCustomRepository {
      * @param filter the filter
      * @return the collection
      */
-    Collection<Price> findByFilter(PriceFilterDTO filter);
+    Collection<Prices> findByFilter(PriceFilterDTO filter);
 
 }

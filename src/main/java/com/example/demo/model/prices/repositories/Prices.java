@@ -5,8 +5,6 @@
 
 package com.example.demo.model.prices.repositories;
 
-import com.example.demo.model.brands.repositories.Brand;
-import com.example.demo.model.products.repositories.Product;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,15 +12,15 @@ import java.util.Date;
 
 @Entity
 @Data
-public class Price {
+public class Prices {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="PRICE_LIST")
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BRAND_ID")
-    private Brand brand;
+    @Column(nullable = false)
+    private Integer brandId;
 
     @Column(nullable = false)
     private Date startDate;
@@ -30,15 +28,15 @@ public class Price {
     @Column(nullable = false)
     private Date endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID")
-    private Product product;
+    @Column(nullable = false)
+    private Integer productId;
 
     @Column(columnDefinition = "INT DEFAULT 0")
     private Integer priority;
 
+
     @Column(columnDefinition = "DECIMAL(2,2) DEFAULT 0")
-    private Double cost;
+    private Double price;
 
     @Column(columnDefinition = "VARCHAR(250) DEFAULT NULL")
     private String curr;
